@@ -27,7 +27,15 @@ $forceCORS = false;
 $exampleURL = 'https://example.net';
 
 /****************************** END CONFIGURATION ******************************/
-
+//Sample fix for some URLs
+if (!empty($url) $$ $url != "clearcookie"){
+	if (filter_var($url, FILTER_VALIDATE_URL) === FALSE) {
+	$url= $_COOKIE["lastdomain"] . $url;
+	}else{
+	$domain = parse_url($url);
+	setcookie("lastdomain","$domain",time() + (86400 * 0.5)); //sets the cookie to be valid for half a day.
+	}
+}
 ob_start("ob_gzhandler");
 
 if (version_compare(PHP_VERSION, "5.4.7", "<")) {
@@ -35,8 +43,6 @@ if (version_compare(PHP_VERSION, "5.4.7", "<")) {
 }
 
 if (!function_exists("curl_init")) die("miniProxy requires PHP's cURL extension. Please install/enable it on your server and try again.");
-
-session_start();
 
 //Helper function for use inside $whitelistPatterns.
 //Returns a regex that matches all HTTP[S] URLs for a given hostname.
@@ -140,13 +146,6 @@ function makeRequest($url) {
   curl_setopt($ch, CURLOPT_HEADER, true);
   curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-  $parseUrl = parse_url(trim($url));
-  $host = trim($parseUrl['host'] ? $parseUrl['host'] : array_shift(explode('/', $parseUrl['path'], 2))); // http://stackoverflow.com/a/1974047/278810
-  $cookieFile = sys_get_temp_dir() . "cookiefile_" . session_id() . "_" . $host;
-
-  curl_setopt($ch, CURLOPT_COOKIEJAR, $cookieFile);
-  curl_setopt($ch, CURLOPT_COOKIEFILE, $cookieFile);
 
   //Set the request URL.
   curl_setopt($ch, CURLOPT_URL, $url);
@@ -254,7 +253,7 @@ if (isset($_POST["miniProxyFormAction"])) {
   }
 }
 if (empty($url)) {
-    die("<html><head><title>miniProxy</title></head><body><h1>Welcome to miniProxy!</h1>miniProxy can be directly invoked like this: <a href=\"" . PROXY_PREFIX . $exampleURL . "\">" . PROXY_PREFIX . $exampleURL . "</a><br /><br />Or, you can simply enter a URL below:<br /><br /><form onsubmit=\"if (document.getElementById('site').value) { window.location.href='" . PROXY_PREFIX . "' + document.getElementById('site').value; return false; } else { window.location.href='" . PROXY_PREFIX . $exampleURL . "'; return false; } \"><input id=\"site\" type=\"text\" size=\"50\" /><input type=\"submit\" value=\"Proxy It!\" /></form></body></html>");
+    die("<html><head><title>miniProxy</title></head><body><h1>Welcome to miniProxy!</h1>miniProxy can be directly invoked like this: <a href=\"" . PROXY_PREFIX . $exampleURL . "\">" . PROXY_PREFIX . $exampleURL . "</a><br /><br />Or, you can simply enter a URL below:<br /><br /><form onsubmit=\"if (document.getElementById('site').value) { window.location.href='" . PROXY_PREFIX . "' + document.getElementById('site').value; return false; } else { window.location.href='" . PROXY_PREFIX . $exampleURL . "'; return false; }\" autocomplete=\"off\"><input id=\"site\" type=\"text\" size=\"50\" /><input type=\"submit\" value=\"Proxy It!\" /></form></body></html>");
 } else if (strpos($url, ":/") !== strpos($url, "://")) {
     //Work around the fact that some web servers (e.g. IIS 8.5) change double slashes appearing in the URL to a single slash.
     //See https://github.com/joshdick/miniProxy/pull/14
