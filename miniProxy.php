@@ -26,6 +26,9 @@ $forceCORS = false;
 //if the URL form is left blank.
 $exampleURL = 'https://example.net';
 
+//Enable Cookies
+$enablecookies = false;
+
 /****************************** END CONFIGURATION ******************************/
 
 ob_start("ob_gzhandler");
@@ -142,11 +145,11 @@ function makeRequest($url) {
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
   $parseUrl = parse_url(trim($url));
-  $host = trim($parseUrl['host'] ? $parseUrl['host'] : array_shift(explode('/', $parseUrl['path'], 2))); // http://stackoverflow.com/a/1974047/278810
   $cookieFile = sys_get_temp_dir() . "cookiefile_" . session_id() . "_" . $host;
 
   curl_setopt($ch, CURLOPT_COOKIEJAR, $cookieFile);
-  curl_setopt($ch, CURLOPT_COOKIEFILE, $cookieFile);
+		curl_setopt($ch, CURLOPT_COOKIEFILE, $cookieFile);
+}
 
   //Set the request URL.
   curl_setopt($ch, CURLOPT_URL, $url);
