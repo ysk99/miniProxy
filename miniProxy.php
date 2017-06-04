@@ -140,12 +140,10 @@ function makeRequest($url) {
   curl_setopt($ch, CURLOPT_HEADER, true);
   curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-  //Load a plug-in for a website.
-  $domain = str_ireplace('www.', '', parse_url($url, PHP_URL_HOST)); //Get the domain for the URL(such as google.com rather than google.com/something/)
-  if (file_exists(realpath("plugins/$domain.php"))) {   
-        include realpath("plugins/$domain.php");//If it exists load the plug-in file for the selected website.              
-    } else {
-        //die("plugins/$domain.php");
+  //Load a config for a website.
+  $domain = str_ireplace('www.', '', parse_url($url, PHP_URL_HOST));
+  if (file_exists(realpath("config/$domain.php"))) {   
+        include realpath("config/$domain.php");             
     }
  //Function can be called, but isn't coded to delete cookies correctly 
   if ($url == "cleancookie") {
@@ -167,6 +165,7 @@ function makeRequest($url) {
 		curl_setopt($ch, CURLOPT_COOKIEJAR,$cookieFile);
 		curl_setopt($ch, CURLOPT_COOKIEFILE, $cookieFile);
 }
+
   //Set the request URL.
   curl_setopt($ch, CURLOPT_URL, $url);
 
